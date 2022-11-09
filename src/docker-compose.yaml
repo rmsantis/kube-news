@@ -1,0 +1,47 @@
+version: "3.0"
+
+networks:
+  aula_docker:
+    driver: bridge
+volumes:
+  kube_news_db:
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      DB_DATABASE: postgres
+      DB_USERNAME: pguser
+      DB_PASSWORD: pgpassword
+      DB_HOST: pg-db
+    ports:
+     - 80:80
+    depends_on:
+      - database
+    networks:
+      - aula_docker
+    
+
+  database:
+    image: postgres
+    container_name: pg-db
+    restart: always
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pgpassword
+    ports:
+      - 5432:5432
+    networks:
+      - aula_docker
+    volumes:
+      - kube_news_db:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - aula_docker
